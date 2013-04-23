@@ -17,7 +17,8 @@ public class Node {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
+		System.out.println("Starting node.");
+		
 		initRMI();
 		
 		// Get my port, name, server ip and port... read from args, and check port and stuff

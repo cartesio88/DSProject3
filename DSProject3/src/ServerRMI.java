@@ -11,12 +11,12 @@ import java.util.Map.Entry;
 
 public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 	private InetAddress _serverIp;
-	private int _serverPort = 0;
+	private int _serverPort ;
 	
 	// HostRecord -> Files
 	private HashMap<HostRecord, LinkedList<String>> _filesRegister;
 
-	protected ServerRMI(InetAddress ip, int port, String name)
+	protected ServerRMI(InetAddress ip, int port)
 			throws RemoteException {
 		super();
 
@@ -24,8 +24,8 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 		_serverPort = port;
 	
 		// Bind local RMI node
-		Registry localRegistry = LocateRegistry.createRegistry(port);
-		localRegistry.rebind(name, this);
+		Registry localRegistry = LocateRegistry.createRegistry(_serverPort);
+		localRegistry.rebind(ip+":"+port, this);
 
 	}
 

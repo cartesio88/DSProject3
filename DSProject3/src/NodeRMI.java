@@ -5,6 +5,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.UUID;
 
 public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
@@ -26,6 +27,8 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		_nodeIp = ip;
 		_nodePort = port;
 		_nodeName = ip+":"+port;
+
+		_loadIndex = 0;
 		
 		String shareDir = System.getProperty("user.home")+"/5105/share/"+_nodeName;
 		_filesDir = new File(shareDir);
@@ -46,24 +49,29 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		_node = new HostRecord(ip.getHostAddress(), port);
 		
 		// Bind with the server
-		_server = new HostRecord(serverIp.getHostAddress(), serverPort);
-		
-		
-			
+		_server = new HostRecord(serverIp.getHostAddress(), serverPort);			
 			
 	}
 
 
 
 	@Override
-	public String download(String filename) throws RemoteException {
-		// TODO Auto-generated method stub
+	public byte[] download(String filename) throws RemoteException {
+		Iterator<FileRegister> itF = _filesList.iterator();
+		while(itF.hasNext()){
+			FileRegister f = itF.next();
+			if(f.getName().equals(filename)) return f.getContent();
+		}
+		
+		System.out.println("ERROR file not found "+filename);
+		
 		return null;
 	}
 
 	@Override
 	public float getLatency() throws RemoteException {
-		// TODO Auto-generated method stub
+		
+		
 		return 0;
 	}
 	

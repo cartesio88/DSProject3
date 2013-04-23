@@ -8,20 +8,20 @@ public class Server {
 
 	public static InetAddress ip;
 	public static int port;
-	public static String name;
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		System.out.println("Starting server.");
+		
 		initRMI();
 		
 		// Get my port, ... read from args, and check port and stuff
 
 		try {
-			ServerRMI serverRMI = new ServerRMI(ip, port, name);
+			ServerRMI serverRMI = new ServerRMI(ip, port);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
