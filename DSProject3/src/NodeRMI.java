@@ -1,3 +1,4 @@
+import java.io.File;
 import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -9,7 +10,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 
 	private static final long serialVersionUID = 1L;
 
-	UUID _machId;
+	private File  _filesDir;
 	private String _nodeName = "";
 	private InetAddress _nodeIp;
 	private int _nodePort = 0;
@@ -23,6 +24,18 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		_nodePort = port;
 		_nodeName = name;
 		
+		
+		String shareDir = System.getProperty("user.home")+"/5105/share/"+_nodeName;
+		_filesDir = new File(shareDir);
+		
+		if(!_filesDir.exists()){
+			System.out.println("ERROR locating the share directory "+shareDir);
+			return;
+		}
+		
+		File[] filesList = getLocalFileList();
+				
+		
 		// Bind local RMI node
 		Registry localRegistry = LocateRegistry.createRegistry(port);
 		localRegistry.rebind(name, this);
@@ -30,12 +43,19 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		// Bind with the server
 		_server = new HostRecord(serverIp.getHostAddress(), serverPort);
 		
+		
 			
 			
 	}
 
-	private void getLocalFileList() {
-
+	private File[] getLocalFileList() {
+		File[] filesList = _filesDir.listFiles();
+		
+		for(int i = 0; i<filesList.length; i++){
+			System.out.println(filesList[i]);
+		}
+		
+		return filesList;
 	}
 
 	private void computerFileChecksum() {

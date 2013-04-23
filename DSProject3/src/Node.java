@@ -21,6 +21,9 @@ public class Node {
 		initRMI();
 		
 		// Get my port, name, server ip and port... read from args, and check port and stuff
+		port = 3030;
+		name = "cesardev";
+		
 		
 		try {
 			NodeRMI nodeRMI = new NodeRMI(ip, port, name, serverIp, serverPort);
