@@ -5,19 +5,23 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.UUID;
 
 public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final int MIN_LATENCY = 500;
+	private static final int MAX_LATENCY = 1000;
+	
 	private File  _filesDir;
 	private ArrayList<FileRegister> _filesList;
 	private InetAddress _nodeIp;
 	private int _nodePort = 0;
 	private String _nodeName;
 	private int _loadIndex;
+	private HashMap<HostRecord, Integer> _latencyTimes;
 	HostRecord _node;
 	HostRecord _server;
 
@@ -68,11 +72,24 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		return null;
 	}
 
+	
+	/*
+	 * Instead of using a configuration file (which is not scalable)
+	 * a node stores the latency to any other node.
+	 * This latency is randomly calculated the first time that two nodes
+	 * communicate with each other, and then stored and provided
+	 * the same value for following times. 
+	 * 
+	 */
 	@Override
-	public float getLatency() throws RemoteException {
+	public int getLatency(HostRecord node) throws RemoteException {
+		Integer latency;
+		if((latency = _latencyTimes.get(node)) == null){
+			latency = (int) Math.random()*(MAX_LATENCY - MIN_LATENCY) + MAX_LATENCY;
+			_latencyTimes.put(node, latency);
+		}
 		
-		
-		return 0;
+		return latency;
 	}
 	
 	
@@ -86,7 +103,4 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		}
 	}
 
-	private void loadConfigurationFile() {
-
-	}
 }
