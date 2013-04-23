@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
@@ -11,6 +12,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 	private static final long serialVersionUID = 1L;
 
 	private File  _filesDir;
+	private ArrayList<FileRegister> _filesList;
 	private String _nodeName = "";
 	private InetAddress _nodeIp;
 	private int _nodePort = 0;
@@ -33,7 +35,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 			return;
 		}
 		
-		File[] filesList = getLocalFileList();
+		updateLocalFileList(); // :)
 				
 		
 		// Bind local RMI node
@@ -48,23 +50,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 			
 	}
 
-	private File[] getLocalFileList() {
-		File[] filesList = _filesDir.listFiles();
-		
-		for(int i = 0; i<filesList.length; i++){
-			System.out.println(filesList[i]);
-		}
-		
-		return filesList;
-	}
 
-	private void computerFileChecksum() {
-
-	}
-
-	private void loadConfigurationFile() {
-
-	}
 
 	@Override
 	public String download(String filename) throws RemoteException {
@@ -76,5 +62,20 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 	public float getLatency() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	
+	private void updateLocalFileList() {
+		File[] list = _filesDir.listFiles();
+		
+		_filesList = new ArrayList<FileRegister>();
+		
+		for(int i = 0; i<list.length; i++){
+			_filesList.add(new FileRegister(list[i]));
+		}
+	}
+
+	private void loadConfigurationFile() {
+
 	}
 }
