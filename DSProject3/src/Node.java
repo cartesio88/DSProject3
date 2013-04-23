@@ -22,11 +22,11 @@ public class Node {
 		
 		// Get my port, name, server ip and port... read from args, and check port and stuff
 		port = 3030;
-		name = "cesardev";
+		name = ip+":"+port;
 		
 		
 		try {
-			NodeRMI nodeRMI = new NodeRMI(ip, port, name, serverIp, serverPort);
+			NodeRMI nodeRMI = new NodeRMI(ip, port, serverIp, serverPort);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

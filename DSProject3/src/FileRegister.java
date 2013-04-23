@@ -2,11 +2,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
-public class FileRegister {
+public class FileRegister implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	private File _file;
 	private byte[] _checksum;
@@ -63,5 +66,7 @@ public class FileRegister {
 		FileRegister fr = (FileRegister) o;
 		return getName().equals(fr.getName());
 	}
+	
+	// TODO implement the serializable methods (only name and checksum! )
 
 }

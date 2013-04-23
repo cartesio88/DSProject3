@@ -1,11 +1,14 @@
 
 
+import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public class HostRecord {
+public class HostRecord implements Serializable{
+	private static final long serialVersionUID = 1L;
+	
 	private String ip;
 	private int port;
 	private String name;
@@ -14,7 +17,7 @@ public class HostRecord {
 	public HostRecord(String ip, int port){
 		this.ip = ip;
 		this.port = port;
-		name = ip+":"+port;
+		this.name = ip+":"+port;
 		bind();
 	}
 	
@@ -51,4 +54,7 @@ public class HostRecord {
 		HostRecord c = (HostRecord) o;
 		return ip.equals(c.getIP()) && port == c.getPort();
 	}
+	
+	
+	// TODO implement serializable methods: ip, and port! :)
 }

@@ -13,19 +13,19 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 
 	private File  _filesDir;
 	private ArrayList<FileRegister> _filesList;
-	private String _nodeName = "";
 	private InetAddress _nodeIp;
 	private int _nodePort = 0;
+	private String _nodeName;
 	private int _loadIndex;
+	HostRecord _node;
 	HostRecord _server;
 
-	public NodeRMI(InetAddress ip, int port, String name, InetAddress serverIp, int serverPort) throws RemoteException {
+	public NodeRMI(InetAddress ip, int port, InetAddress serverIp, int serverPort) throws RemoteException {
 		super();
 
 		_nodeIp = ip;
 		_nodePort = port;
-		_nodeName = name;
-		
+		_nodeName = ip+":"+port;
 		
 		String shareDir = System.getProperty("user.home")+"/5105/share/"+_nodeName;
 		_filesDir = new File(shareDir);
@@ -40,7 +40,10 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		
 		// Bind local RMI node
 		Registry localRegistry = LocateRegistry.createRegistry(port);
-		localRegistry.rebind(name, this);
+		localRegistry.rebind(_nodeName, this);
+		
+		// Create the HostRecord object for this node
+		_node = new HostRecord(ip.getHostAddress(), port);
 		
 		// Bind with the server
 		_server = new HostRecord(serverIp.getHostAddress(), serverPort);
