@@ -14,6 +14,9 @@ public class FileSender extends Thread {
 
 	final int START_PORT = 2000;
 	final int END_PORT = 50000;
+	
+	final int MIN_SEC_DOWNLOAD = 1;
+	final int MAX_SEC_DOWNLOAD = 30;
 
 	public FileSender(FileRegister file, String dstIp, int dstPort, NodeRMI node) {
 		this.file = file;
@@ -39,10 +42,17 @@ public class FileSender extends Thread {
 			} catch (SocketException e) {
 				udpPort++;
 				if(udpPort == END_PORT) udpPort = START_PORT;
-				//e.printStackTrace();
 			}
 		}
 
+		try {
+			long seconds = (long)(Math.random()*MAX_SEC_DOWNLOAD + MIN_SEC_DOWNLOAD);
+			System.out.println("["+file.getName()+"] Elapsed time of download "+seconds+" seconds.");
+			sleep(seconds*1000);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		
 		// Listen to articles and pings
 		DatagramPacket pkg;
 		try {

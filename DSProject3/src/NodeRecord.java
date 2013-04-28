@@ -61,9 +61,7 @@ public class NodeRecord implements Serializable{
 		 
 		 
 		 String str = ip+"@"+port+"@"+name;
-		 
-		 System.out.println("[NodeRecord] write object: "+str);
-		 
+		 		 
 		 out.writeUTF(str);
 	 }
 	 
@@ -71,10 +69,6 @@ public class NodeRecord implements Serializable{
 		     throws IOException, ClassNotFoundException{
 		 		 
 		 String str = in.readUTF();
-		 
-		 System.out.println("[NodeRecord] Serializable readObject: "+str);
-
-		 
 		 
 		 String fields[] = str.split("@");
 		 

@@ -64,7 +64,7 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 			throws RemoteException {
 		LinkedList<FileRegister> l;
 
-		System.out.println("Updating the list from " + node);
+		//System.out.println("Updating the list from " + node);
 
 		if ((l = _filesRegister.get(node)) == null) {
 			l = new LinkedList<FileRegister>();
@@ -74,7 +74,7 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 		}
 
 		for (int i = 0; i < list.size(); i++) {
-			System.out.println(list.get(i));
+			//System.out.println(list.get(i));
 			l.add(list.get(i));
 		}
 	}

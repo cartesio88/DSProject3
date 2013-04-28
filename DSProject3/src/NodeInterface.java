@@ -7,5 +7,5 @@ public interface NodeInterface extends Remote {
 	public  void requestDownload(NodeRecord node, String filename, int rcvPort) throws RemoteException;
 	
 	public int getLatency(NodeRecord node) throws RemoteException;
-
+	public int getLoad() throws RemoteException;
 }

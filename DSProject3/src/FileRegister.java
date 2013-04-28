@@ -83,9 +83,6 @@ public class FileRegister implements Serializable {
 			computeChecksum();
 
 		} catch (FileNotFoundException e) {
-			System.out.println("ERROR loading the file "
-					+ _file.getAbsolutePath());
-			e.printStackTrace();
 		} catch (IOException e) {
 			System.out.println("ERROR reading the file "
 					+ _file.getAbsolutePath());
@@ -104,8 +101,6 @@ public class FileRegister implements Serializable {
 
 		String str = _name + "@" + _checksum + "@" + _length;
 
-		System.out.println("[FileRegister] Serializable writeObject: " + str);
-
 		out.writeUTF(str);
 	}
 
@@ -113,8 +108,6 @@ public class FileRegister implements Serializable {
 			ClassNotFoundException {
 
 		String str = in.readUTF();
-
-		System.out.println("[FileRegister] Serializable readObject: " + str);
 
 		String fields[] = str.split("@");
 

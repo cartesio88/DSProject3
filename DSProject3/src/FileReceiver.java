@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.rmi.RemoteException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -21,18 +22,23 @@ public class FileReceiver extends Thread {
 	int length;
 	String checksum;
 	String dirPath;
+	NodeRMI node;
 
-	public FileReceiver(String name, int length, String checksum, String dirPath) {
+	public FileReceiver(String name, int length, String checksum, String dirPath, NodeRMI node) {
 		findFreePort();
 
 		this.name = name;
 		this.length = length;
 		this.checksum = checksum;
 		this.dirPath = dirPath;
+		this.node = node;
 	}
 
 	@Override
 	public void run() {
+		
+		node._loadIndex ++;
+		
 		try {
 			// Listen to articles and pings
 			byte buffer[] = new byte[length];
@@ -53,6 +59,15 @@ public class FileReceiver extends Thread {
 
 		} catch (IOException e) {
 			System.out.println("ERROR receiving the file");
+			e.printStackTrace();
+		}
+		
+		node._loadIndex --;
+		
+		node.updateLocalFileList();
+		try {
+			node._server.updateList(node._node, node._filesList);
+		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 

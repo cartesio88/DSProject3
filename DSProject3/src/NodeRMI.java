@@ -18,12 +18,12 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 	private static final int MAX_LATENCY = 1000;
 
 	private File _filesDir;
-	private ArrayList<FileRegister> _filesList;
+	public ArrayList<FileRegister> _filesList;
 	private String _nodeName;
 	public int _loadIndex;
 	private HashMap<NodeRecord, Integer> _latencyTimes;
-	NodeRecord _node;
-	ServerInterface _server;
+	public NodeRecord _node;
+	public ServerInterface _server;
 	private String _shareDir = "";
 
 	public NodeRMI(InetAddress ip, int port, String serverIp, int serverPort)
@@ -33,6 +33,8 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		_nodeName = ip.getHostAddress() + ":" + port;
 
 		_loadIndex = 0;
+		
+		_latencyTimes = new HashMap<NodeRecord, Integer>();
 
 		_shareDir = System.getProperty("user.home") + "/5105/share/"
 				+ _nodeName;
@@ -45,7 +47,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 			return;
 		}
 
-		updateLocalFileList(); // :)
+
 
 		// Bind local RMI node
 		Registry localRegistry = LocateRegistry.createRegistry(port);
@@ -70,8 +72,10 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 			_server = null;
 		}
 
-		// Sending the server my list
-		_server.updateList(_node, _filesList);
+		SharedDirWatcher watcher = new SharedDirWatcher(this);
+		watcher.start();
+		
+	
 
 	}
 
@@ -93,7 +97,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		return latency;
 	}
 
-	private void updateLocalFileList() {
+	public void updateLocalFileList() {
 		File[] list = _filesDir.listFiles();
 
 		_filesList = new ArrayList<FileRegister>();
@@ -114,7 +118,6 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		Iterator<FileRegister> itF = _filesList.iterator();
 		while (itF.hasNext()) {
 			FileRegister f = itF.next();
-			System.out.println("Comparing " + f.getName() + " and " + filename);
 			if (f.getName().equals(filename)) {
 				file = f;
 				break;
@@ -148,26 +151,38 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 
 			LinkedList<NodeRecord> nodesList = _server.find(fileName);
 
-			// Pick up best (latency)
+			// Pick up best (latency) Algorithm
 			if (nodesList.size() == 0) {
 				System.out.println("File not found!");
 				return;
 			}
 
+			int minLat = 999999;
+			NodeRecord chosenNode = null;
+			for(int i=0; i<nodesList.size(); i++){
+				NodeRecord node = nodesList.get(i);
+				node.bind();
+				int lat = node.rmi.getLatency(_node) * node.rmi.getLoad();
+				if(lat < minLat){
+					minLat = lat;
+					chosenNode = node;
+				}
+			}
+			
+			System.out.println("Downloading file from "+chosenNode);
+			
 			FileRegister fileInfo = _server.getFileInfo(fileName);
 
-			NodeRecord node = nodesList.get(0);
-			node.bind();
-
+			
 			// Create a file receiver
 			FileReceiver fileReceiver = new FileReceiver(fileInfo.getName(),
-					fileInfo.getLength(), fileInfo.getChecksum(), _shareDir);
+					fileInfo.getLength(), fileInfo.getChecksum(), _shareDir, this);
 			int rcvPort = fileReceiver.getUDPPort();
 
 			fileReceiver.start();
 
 			// Send the request to download to the node
-			node.rmi.requestDownload(_node, fileInfo.getName(), rcvPort);
+			chosenNode.rmi.requestDownload(_node, fileInfo.getName(), rcvPort);
 
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -195,6 +210,11 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 			e.printStackTrace();
 		}
 
+	}
+
+	@Override
+	public int getLoad() throws RemoteException {
+		return _loadIndex;
 	}
 
 }
