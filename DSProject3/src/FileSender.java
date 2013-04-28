@@ -10,19 +10,23 @@ public class FileSender extends Thread {
 	FileRegister file;
 	String dstIp;
 	int dstPort;
+	NodeRMI node;
 
 	final int START_PORT = 2000;
 	final int END_PORT = 50000;
 
-	public FileSender(FileRegister file, String dstIp, int dstPort) {
+	public FileSender(FileRegister file, String dstIp, int dstPort, NodeRMI node) {
 		this.file = file;
 		this.dstIp = dstIp;
 		this.dstPort = dstPort;
+		this.node = node;
 	}
 
 	@Override
 	public void run() {
 
+		node._loadIndex ++;
+		
 		int udpPort = START_PORT;
 		boolean portFound = false;
 		// Opening the socket
@@ -55,7 +59,7 @@ public class FileSender extends Thread {
 			e.printStackTrace();
 		}
 
-		
+		node._loadIndex --;
 
 	}
 }

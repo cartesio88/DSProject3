@@ -30,7 +30,7 @@ public class NodeRecord implements Serializable{
 	public void setIP(String ip){this.ip = ip;}
 	public void setPort(int port){this.port = port;}
 	
-	private boolean bind(){
+	public boolean bind(){
 		Registry registry;
 		try {
 			registry = LocateRegistry.getRegistry(ip, port);
@@ -61,14 +61,20 @@ public class NodeRecord implements Serializable{
 		 
 		 
 		 String str = ip+"@"+port+"@"+name;
+		 
+		 System.out.println("[NodeRecord] write object: "+str);
+		 
 		 out.writeUTF(str);
 	 }
 	 
 	 private void readObject(java.io.ObjectInputStream in)
 		     throws IOException, ClassNotFoundException{
+		 		 
 		 String str = in.readUTF();
+		 
+		 System.out.println("[NodeRecord] Serializable readObject: "+str);
 
-		 System.out.println("Serializable readObject: "+str);
+		 
 		 
 		 String fields[] = str.split("@");
 		 

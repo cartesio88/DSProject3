@@ -36,6 +36,8 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 
 	@Override
 	public LinkedList<NodeRecord> find(String filename) throws RemoteException {
+		System.out.println("Looking for the file "+filename);
+		
 		LinkedList<NodeRecord> hostList = new LinkedList<NodeRecord>();
 
 		Iterator<Entry<NodeRecord, LinkedList<FileRegister>>> itH = _filesRegister
@@ -80,6 +82,8 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 	@Override
 	public LinkedList<String> getFilesList() throws RemoteException {
 
+		System.out.println("Sengind the list of files");
+		
 		LinkedList<String> filesList = new LinkedList<String>();
 
 		Iterator<Entry<NodeRecord, LinkedList<FileRegister>>> itH = _filesRegister
@@ -103,6 +107,7 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 
 	@Override
 	public FileRegister getFileInfo(String filename) throws RemoteException {
+		System.out.println("Sending file info: "+filename);
 		
 		Iterator<Entry<NodeRecord, LinkedList<FileRegister>>> itH = _filesRegister
 				.entrySet().iterator();
@@ -114,11 +119,14 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 			while (itF.hasNext()) {
 				FileRegister f = itF.next();
 				if (f.getName().equals(filename)) {
+					System.out.println("File found!: "+f);
 					return f;
 				}
 			}
 		}
 
+		
+		System.out.println("File not found!");
 		return null;
 	}
 }

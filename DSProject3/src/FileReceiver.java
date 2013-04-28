@@ -19,10 +19,10 @@ public class FileReceiver extends Thread {
 
 	String name;
 	int length;
-	byte[] checksum;
+	String checksum;
 	String dirPath;
 
-	public FileReceiver(String name, int length, byte[] checksum, String dirPath) {
+	public FileReceiver(String name, int length, String checksum, String dirPath) {
 		findFreePort();
 
 		this.name = name;
@@ -40,7 +40,7 @@ public class FileReceiver extends Thread {
 
 			socket.receive(pkg);
 
-			byte[] cks = computeChecksum(buffer);
+			String cks = computeChecksum(buffer);
 
 			// Check checksum
 			if (!checksum.equals(cks)) {
@@ -75,13 +75,17 @@ public class FileReceiver extends Thread {
 
 	}
 
-	private byte[] computeChecksum(byte[] content) {
+	private String computeChecksum(byte[] content) {
 		MessageDigest md;
-		byte[] cks = null;
+		String cks = "";
 		try {
 			md = MessageDigest.getInstance("MD5");
 			md.update(content);
-			cks = md.digest();
+			byte [] buffer;
+			buffer = md.digest();
+			for(int i=0; i<buffer.length; i++){
+				cks += buffer[i];
+			}
 		} catch (NoSuchAlgorithmException e) {
 			System.out.println("[FileReceiver] ERROR calculating the checksum");
 			e.printStackTrace();

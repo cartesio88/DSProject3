@@ -20,7 +20,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 	private File _filesDir;
 	private ArrayList<FileRegister> _filesList;
 	private String _nodeName;
-	private int _loadIndex;
+	public int _loadIndex;
 	private HashMap<NodeRecord, Integer> _latencyTimes;
 	NodeRecord _node;
 	ServerInterface _server;
@@ -40,8 +40,8 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		_filesDir.mkdir();
 
 		if (!_filesDir.exists()) {
-			System.out
-					.println("ERROR locating the share directory " + _shareDir);
+			System.out.println("ERROR locating the share directory "
+					+ _shareDir);
 			return;
 		}
 
@@ -114,9 +114,11 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		Iterator<FileRegister> itF = _filesList.iterator();
 		while (itF.hasNext()) {
 			FileRegister f = itF.next();
-			if (f.getName().equals(filename))
+			System.out.println("Comparing " + f.getName() + " and " + filename);
+			if (f.getName().equals(filename)) {
 				file = f;
-			break;
+				break;
+			}
 		}
 
 		if (file == null) {
@@ -124,7 +126,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 			return;
 		}
 
-		FileSender fileSender = new FileSender(file, node.getIP(), rcvPort);
+		FileSender fileSender = new FileSender(file, node.getIP(), rcvPort, this);
 
 		fileSender.start();
 
@@ -133,30 +135,40 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 	// Calls from Node.java
 	// Asks the server, decides and downloads
 	public void getFile(String fileName) {
+		// Lets check that I dont have the file
+		for(int i=0; i<_filesList.size(); i++){
+			if(_filesList.get(i).getName().equals(fileName)){
+				System.out.println("The file is already in the filesystem");
+				return;
+			}
+		}
+		
 		try {
 			// Get list from server
 
 			LinkedList<NodeRecord> nodesList = _server.find(fileName);
 
 			// Pick up best (latency)
-			if(nodesList.size() == 0){
+			if (nodesList.size() == 0) {
 				System.out.println("File not found!");
 				return;
 			}
-			
+
 			FileRegister fileInfo = _server.getFileInfo(fileName);
 
 			NodeRecord node = nodesList.get(0);
-			
+			node.bind();
+
 			// Create a file receiver
-			FileReceiver fileReceiver = new FileReceiver(fileInfo.getName(), fileInfo.getLength(), fileInfo.getChecksum(),  _shareDir);
+			FileReceiver fileReceiver = new FileReceiver(fileInfo.getName(),
+					fileInfo.getLength(), fileInfo.getChecksum(), _shareDir);
 			int rcvPort = fileReceiver.getUDPPort();
-			
+
 			fileReceiver.start();
-			
+
 			// Send the request to download to the node
 			node.rmi.requestDownload(_node, fileInfo.getName(), rcvPort);
-			
+
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
