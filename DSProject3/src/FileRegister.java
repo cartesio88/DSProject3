@@ -12,6 +12,7 @@ public class FileRegister implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private File _file;
+	private String _name;
 	private byte[] _checksum;
 	private byte[] _content;
 	
@@ -68,5 +69,26 @@ public class FileRegister implements Serializable{
 	}
 	
 	// TODO implement the serializable methods (only name and checksum! )
+	private void writeObject(java.io.ObjectOutputStream out)
+		     throws IOException{
 
+
+		 String str = _file.getName()+"@"+_checksum;
+		 out.writeUTF(str);
+	 }
+
+	 private void readObject(java.io.ObjectInputStream in)
+		     throws IOException, ClassNotFoundException{
+		 String str = in.readUTF();
+
+		 System.out.println("Serializable readObject: "+str);
+
+		 String fields[] = str.split("@");
+
+		 _name = fields[0];
+		 _checksum = fields[1].getBytes();
+		 
+	 }
 }
+
+
