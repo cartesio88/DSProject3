@@ -26,6 +26,8 @@ public class Server {
 		}
 		
 		port = Integer.parseInt(args[0]);
+		System.out.println("Server IP: "+ip.getHostAddress()+":"+port);
+		
 		
 		try {
 			ServerRMI serverRMI = new ServerRMI(ip, port);

@@ -1,20 +1,21 @@
 
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public class HostRecord implements Serializable{
+public class NodeRecord implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	private String ip;
 	private int port;
 	private String name;
-	public ServerInterface rmi = null;
+	public NodeInterface rmi = null;
 	
-	public HostRecord(String ip, int port){
+	public NodeRecord(String ip, int port){
 		this.ip = ip;
 		this.port = port;
 		this.name = ip+":"+port;
@@ -24,7 +25,7 @@ public class HostRecord implements Serializable{
 	public String getIP(){return ip;}
 	public int getPort(){return port;}
 	public String getBiningName(){ return name; }
-	public ServerInterface getRMI() { return rmi; }
+	public NodeInterface getRMI() { return rmi; }
 	
 	public void setIP(String ip){this.ip = ip;}
 	public void setPort(int port){this.port = port;}
@@ -33,7 +34,7 @@ public class HostRecord implements Serializable{
 		Registry registry;
 		try {
 			registry = LocateRegistry.getRegistry(ip, port);
-			rmi = (ServerInterface) registry.lookup(name);
+			rmi = (NodeInterface) registry.lookup(name);
 		} catch (RemoteException e) {
 			rmi = null;
 			e.printStackTrace();
@@ -47,14 +48,34 @@ public class HostRecord implements Serializable{
 	}
 	
 	public String toString(){
-		return name;
+		return name+"@"+ip+":"+port;
 	}
 	
 	public boolean equals(Object o){
-		HostRecord c = (HostRecord) o;
+		NodeRecord c = (NodeRecord) o;
 		return ip.equals(c.getIP()) && port == c.getPort();
 	}
 	
-	
-	// TODO implement serializable methods: ip, and port! :)
+	 private void writeObject(java.io.ObjectOutputStream out)
+		     throws IOException{
+		 
+		 
+		 String str = ip+"@"+port+"@"+name;
+		 out.writeUTF(str);
+	 }
+	 
+	 private void readObject(java.io.ObjectInputStream in)
+		     throws IOException, ClassNotFoundException{
+		 String str = in.readUTF();
+
+		 System.out.println("Serializable readObject: "+str);
+		 
+		 String fields[] = str.split("@");
+		 
+		 ip = fields[0];
+		 port = Integer.parseInt(fields[1]);
+		 name = fields[2];
+		 
+	 }
+		 
 }

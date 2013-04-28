@@ -14,7 +14,7 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 	private int _serverPort ;
 	
 	// HostRecord -> Files
-	private HashMap<HostRecord, LinkedList<String>> _filesRegister;
+	private HashMap<NodeRecord, LinkedList<String>> _filesRegister;
 
 	protected ServerRMI(InetAddress ip, int port)
 			throws RemoteException {
@@ -22,23 +22,29 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 
 		_serverIp = ip;
 		_serverPort = port;
+		
+		String bindingName = ip.getHostAddress()+":"+port;
+		
+		_filesRegister = new HashMap<NodeRecord, LinkedList<String>>();
 	
 		// Bind local RMI node
 		Registry localRegistry = LocateRegistry.createRegistry(_serverPort);
-		localRegistry.rebind(ip+":"+port, this);
+		localRegistry.rebind(bindingName, this);
+		
+		System.out.println("Binding server with name: "+bindingName);
 
 	}
 
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public LinkedList<HostRecord> find(String filename) throws RemoteException {
-		LinkedList<HostRecord> hostList = new LinkedList<HostRecord>();
+	public LinkedList<NodeRecord> find(String filename) throws RemoteException {
+		LinkedList<NodeRecord> hostList = new LinkedList<NodeRecord>();
 		
-		Iterator<Entry<HostRecord, LinkedList<String>>> itH = _filesRegister.entrySet().iterator();
+		Iterator<Entry<NodeRecord, LinkedList<String>>> itH = _filesRegister.entrySet().iterator();
 	
 		while(itH.hasNext()){
-			Entry<HostRecord, LinkedList<String>> e = itH.next();
+			Entry<NodeRecord, LinkedList<String>> e = itH.next();
 			
 			Iterator<String> itF = e.getValue().iterator();
 			while(itF.hasNext()){
@@ -54,8 +60,10 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 	}
 
 	@Override
-	public void updateList(HostRecord node, ArrayList<FileRegister> list) throws RemoteException {
+	public void updateList(NodeRecord node, ArrayList<FileRegister> list) throws RemoteException {
 		LinkedList<String> l;
+		
+		System.out.println("Updating the list from "+node);
 		
 		if((l=_filesRegister.get(node)) == null){
 			l = new LinkedList<String>();
@@ -65,6 +73,7 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 		}
 		
 		for(int i=0; i<list.size(); i++){
+			System.out.println(list.get(i));
 			l.add(list.get(i).getName());
 		}		
 	}

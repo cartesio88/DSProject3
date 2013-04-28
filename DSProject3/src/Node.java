@@ -35,6 +35,9 @@ public class Node {
 		serverIp = args[1];
 		serverPort = Integer.parseInt(args[2]);
 		
+		System.out.println("IP: "+ip.getHostAddress()+":"+port);
+		System.out.println("Server IP: "+serverIp+":"+serverPort);
+		
 		
 		try {
 			NodeRMI nodeRMI = new NodeRMI(ip, port, serverIp, serverPort);
