@@ -47,18 +47,15 @@ public class FileReceiver extends Thread {
 
 			socket.receive(pkg);
 
-			
 			// Adding noise
 			if(Math.random()<PROB_CORRUPTION){
 				buffer[0] = 0;
-			}
-			
+			}			
 			String cks = computeChecksum(buffer);
 
 			// Check checksum
 			if (!checksum.equals(cks)) {
-				System.out.println("ERROR Checksums are different! for file "
-						+ name);
+				System.out.println("File "+name+" is CORRUPTED. Re-try the download later.");
 				return;
 			}
 

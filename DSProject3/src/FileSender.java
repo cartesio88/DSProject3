@@ -15,6 +15,8 @@ public class FileSender extends Thread {
 	final int START_PORT = 2000;
 	final int END_PORT = 50000;
 	
+	final int MAX_REFETCH = 3;
+	
 	final int MIN_SEC_DOWNLOAD = 1;
 	final int MAX_SEC_DOWNLOAD = 30;
 
@@ -45,6 +47,8 @@ public class FileSender extends Thread {
 			}
 		}
 
+		
+		
 		try {
 			long seconds = (long)(Math.random()*MAX_SEC_DOWNLOAD + MIN_SEC_DOWNLOAD);
 			System.out.println("["+file.getName()+"] Elapsed time of download "+seconds+" seconds.");
