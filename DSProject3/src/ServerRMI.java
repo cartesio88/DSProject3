@@ -77,4 +77,10 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 			l.add(list.get(i).getName());
 		}		
 	}
+
+	@Override
+	public LinkedList<String> getFilesList() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
