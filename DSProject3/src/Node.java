@@ -50,11 +50,12 @@ public class Node {
 		System.out.println("IP: "+ip.getHostAddress()+":"+port);
 		System.out.println("Server IP: "+serverIp+":"+serverPort);
 		
-		
+		NodeRMI nodeRMI = null;
 		try {
-			NodeRMI nodeRMI = new NodeRMI(ip, port, serverIp, serverPort);
+			nodeRMI = new NodeRMI(ip, port, serverIp, serverPort);
 		} catch (RemoteException e) {
 			e.printStackTrace();
+			return;
 		}
 		
 		Scanner scan = new Scanner(System.in);
@@ -80,18 +81,18 @@ public class Node {
 				switch (Option) {
 				case 1: { // Display files
 					System.out.println("Avaliable files: ");
-					//NodeRMI.listAllFiles(); 
+					nodeRMI.listAllFiles(); 
 					break;
 				}
 				case 2: { // Dispaly local files
 					System.out.println("Local files: ");
-					//NodeRMI.listLocalFiles();
+					nodeRMI.listLocalFiles();
 					break;
 				}
 				case 3: { // Download
 					System.out.println("Enter name of a file:");
 					String filename = scan.nextLine();
-					//NodeRMI.getFile(filename);
+					nodeRMI.getFile(filename);
 					break;
 				}
 				case 0: // Exit

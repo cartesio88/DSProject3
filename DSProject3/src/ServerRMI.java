@@ -113,7 +113,7 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 			Iterator<FileRegister> itF = e.getValue().iterator();
 			while (itF.hasNext()) {
 				FileRegister f = itF.next();
-				if (f.equals(filename)) {
+				if (f.getName().equals(filename)) {
 					return f;
 				}
 			}

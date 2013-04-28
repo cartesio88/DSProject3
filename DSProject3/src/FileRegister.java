@@ -48,7 +48,7 @@ public class FileRegister implements Serializable {
 	}
 
 	public String toString() {
-		return getName() + _checksum;
+		return getName() + " Checksum: "+ _checksum;
 	}
 
 	private void computeChecksum() {
@@ -67,6 +67,8 @@ public class FileRegister implements Serializable {
 
 	public void load() {
 		try {
+			
+			_name = _file.getName();
 			FileInputStream fis = new FileInputStream(_file.getAbsoluteFile());
 			_content = new byte[(int) _file.length()];
 			fis.read(_content);
