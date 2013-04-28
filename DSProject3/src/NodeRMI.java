@@ -1,5 +1,6 @@
 import java.io.File;
 import java.net.InetAddress;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -21,21 +22,22 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 	private int _nodePort = 0;
 	private String _nodeName;
 	private int _loadIndex;
-	private HashMap<HostRecord, Integer> _latencyTimes;
-	HostRecord _node;
-	HostRecord _server;
+	private HashMap<NodeRecord, Integer> _latencyTimes;
+	NodeRecord _node;
+	ServerInterface _server;
 
 	public NodeRMI(InetAddress ip, int port, String serverIp, int serverPort) throws RemoteException {
 		super();
 
 		_nodeIp = ip;
 		_nodePort = port;
-		_nodeName = ip+":"+port;
+		_nodeName = ip.getHostAddress()+":"+port;
 
 		_loadIndex = 0;
 		
 		String shareDir = System.getProperty("user.home")+"/5105/share/"+_nodeName;
 		_filesDir = new File(shareDir);
+		_filesDir.mkdir();
 		
 		if(!_filesDir.exists()){
 			System.out.println("ERROR locating the share directory "+shareDir);
@@ -49,12 +51,27 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		Registry localRegistry = LocateRegistry.createRegistry(port);
 		localRegistry.rebind(_nodeName, this);
 		
+		System.out.println("Binding node with name: "+_nodeName);
+		
 		// Create the HostRecord object for this node
-		_node = new HostRecord(ip.getHostAddress(), port);
+		_node = new NodeRecord(ip.getHostAddress(), port);
 		
 		// Bind with the server
-		_server = new HostRecord(serverIp, serverPort);			
-			
+		Registry serverRegistry;
+		try {
+			serverRegistry = LocateRegistry.getRegistry(serverIp, serverPort);
+			_server = (ServerInterface) serverRegistry.lookup(serverIp+":"+serverPort);
+		} catch (RemoteException e) {
+			_server = null;
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			System.out.println("Server not available "+toString());
+			_server = null;
+		}
+		
+		// Sending the server my list
+		_server.updateList(_node, _filesList);
+		
 	}
 
 
@@ -84,7 +101,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 	 * 
 	 */
 	@Override
-	public int getLatency(HostRecord node) throws RemoteException {
+	public int getLatency(NodeRecord node) throws RemoteException {
 		Integer latency;
 		if((latency = _latencyTimes.get(node)) == null){
 			latency = (int) Math.random()*(MAX_LATENCY - MIN_LATENCY) + MAX_LATENCY;

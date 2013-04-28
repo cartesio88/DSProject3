@@ -2,9 +2,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.io.Serializable;
 
 
 public class FileRegister implements Serializable{
@@ -13,6 +16,7 @@ public class FileRegister implements Serializable{
 
 	private File _file;
 	private byte[] _checksum;
+	private String  _name;
 	private byte[] _content;
 	
 	public FileRegister(File file){
@@ -68,5 +72,17 @@ public class FileRegister implements Serializable{
 	}
 	
 	// TODO implement the serializable methods (only name and checksum! )
-
+	
+	private void writeObject(ObjectOutputStream out) throws IOException {
+			String str = _file.getName() + _checksum; 
+			out.writeObject(str);  
+		    }
+	
+	private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
+		     String str = in.readUTF();
+			 System.out.println("Serializable readObject: "+str);
+			 String fields[] = str.split("@");
+			 _name = fields[0];
+			 _checksum = fields[1].getBytes();
+		  }
 }
