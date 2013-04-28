@@ -8,7 +8,7 @@ import java.net.SocketException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class FileReceiver implements Runnable {
+public class FileReceiver extends Thread {
 
 	int udpPort;
 

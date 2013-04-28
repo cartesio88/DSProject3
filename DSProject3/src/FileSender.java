@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class FileSender implements Runnable {
+public class FileSender extends Thread {
 
 	FileRegister file;
 	String dstIp;

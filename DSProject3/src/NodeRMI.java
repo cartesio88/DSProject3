@@ -19,32 +19,29 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 
 	private File _filesDir;
 	private ArrayList<FileRegister> _filesList;
-	private InetAddress _nodeIp;
-	private int _nodePort = 0;
 	private String _nodeName;
 	private int _loadIndex;
 	private HashMap<NodeRecord, Integer> _latencyTimes;
 	NodeRecord _node;
 	ServerInterface _server;
+	private String _shareDir = "";
 
 	public NodeRMI(InetAddress ip, int port, String serverIp, int serverPort)
 			throws RemoteException {
 		super();
 
-		_nodeIp = ip;
-		_nodePort = port;
 		_nodeName = ip.getHostAddress() + ":" + port;
 
 		_loadIndex = 0;
 
-		String shareDir = System.getProperty("user.home") + "/5105/share/"
+		_shareDir = System.getProperty("user.home") + "/5105/share/"
 				+ _nodeName;
-		_filesDir = new File(shareDir);
+		_filesDir = new File(_shareDir);
 		_filesDir.mkdir();
 
 		if (!_filesDir.exists()) {
 			System.out
-					.println("ERROR locating the share directory " + shareDir);
+					.println("ERROR locating the share directory " + _shareDir);
 			return;
 		}
 
@@ -78,22 +75,6 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 
 	}
 
-	/* mmmm use UDP to download and parallelize them? maybe tcp socket? */
-
-	@Override
-	public byte[] download(String filename) throws RemoteException {
-		Iterator<FileRegister> itF = _filesList.iterator();
-		while (itF.hasNext()) {
-			FileRegister f = itF.next();
-			if (f.getName().equals(filename))
-				return f.getContent();
-		}
-
-		System.out.println("ERROR file not found " + filename);
-
-		return null;
-	}
-
 	/*
 	 * Instead of using a configuration file (which is not scalable) a node
 	 * stores the latency to any other node. This latency is randomly calculated
@@ -122,10 +103,65 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		}
 	}
 
+	/*
+	 * Create a FileSender :)
+	 */
+
+	@Override
+	public void requestDownload(NodeRecord node, String filename, int rcvPort)
+			throws RemoteException {
+		FileRegister file = null;
+		Iterator<FileRegister> itF = _filesList.iterator();
+		while (itF.hasNext()) {
+			FileRegister f = itF.next();
+			if (f.getName().equals(filename))
+				file = f;
+			break;
+		}
+
+		if (file == null) {
+			System.out.println("ERROR file not found " + filename);
+			return;
+		}
+
+		FileSender fileSender = new FileSender(file, node.getIP(), rcvPort);
+
+		fileSender.start();
+
+	}
+
 	// Calls from Node.java
 	// Asks the server, decides and downloads
-	public void getFile() {
+	public void getFile(String fileName) {
+		try {
+			// Get list from server
 
+			LinkedList<NodeRecord> nodesList = _server.find(fileName);
+
+			// Pick up best (latency)
+			if(nodesList.size() == 0){
+				System.out.println("File not found!");
+				return;
+			}
+			
+			FileRegister fileInfo = _server.getFileInfo(fileName);
+
+			NodeRecord node = nodesList.get(0);
+			
+			// Create a file receiver
+			FileReceiver fileReceiver = new FileReceiver(fileInfo.getName(), fileInfo.getLength(), fileInfo.getChecksum(),  _shareDir);
+			int rcvPort = fileReceiver.getUDPPort();
+			
+			fileReceiver.start();
+			
+			// Send the request to download to the node
+			node.rmi.requestDownload(_node, fileInfo.getName(), rcvPort);
+			
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+
+		// That's it ;)
 	}
 
 	public void listLocalFiles() {

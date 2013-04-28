@@ -10,28 +10,25 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 
 public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
-	private InetAddress _serverIp;
-	private int _serverPort ;
-	
-	// HostRecord -> Files
-	private HashMap<NodeRecord, LinkedList<String>> _filesRegister;
+	private int _serverPort;
 
-	protected ServerRMI(InetAddress ip, int port)
-			throws RemoteException {
+	// HostRecord -> Files
+	private HashMap<NodeRecord, LinkedList<FileRegister>> _filesRegister;
+
+	protected ServerRMI(InetAddress ip, int port) throws RemoteException {
 		super();
 
-		_serverIp = ip;
 		_serverPort = port;
-		
-		String bindingName = ip.getHostAddress()+":"+port;
-		
-		_filesRegister = new HashMap<NodeRecord, LinkedList<String>>();
-	
+
+		String bindingName = ip.getHostAddress() + ":" + port;
+
+		_filesRegister = new HashMap<NodeRecord, LinkedList<FileRegister>>();
+
 		// Bind local RMI node
 		Registry localRegistry = LocateRegistry.createRegistry(_serverPort);
 		localRegistry.rebind(bindingName, this);
-		
-		System.out.println("Binding server with name: "+bindingName);
+
+		System.out.println("Binding server with name: " + bindingName);
 
 	}
 
@@ -40,47 +37,88 @@ public class ServerRMI extends UnicastRemoteObject implements ServerInterface {
 	@Override
 	public LinkedList<NodeRecord> find(String filename) throws RemoteException {
 		LinkedList<NodeRecord> hostList = new LinkedList<NodeRecord>();
-		
-		Iterator<Entry<NodeRecord, LinkedList<String>>> itH = _filesRegister.entrySet().iterator();
-	
-		while(itH.hasNext()){
-			Entry<NodeRecord, LinkedList<String>> e = itH.next();
-			
-			Iterator<String> itF = e.getValue().iterator();
-			while(itF.hasNext()){
-				String f = itF.next();
-				if(f.equals(filename)){
+
+		Iterator<Entry<NodeRecord, LinkedList<FileRegister>>> itH = _filesRegister
+				.entrySet().iterator();
+
+		while (itH.hasNext()) {
+			Entry<NodeRecord, LinkedList<FileRegister>> e = itH.next();
+
+			Iterator<FileRegister> itF = e.getValue().iterator();
+			while (itF.hasNext()) {
+				FileRegister f = itF.next();
+				if (f.getName().equals(filename)) {
 					hostList.add(e.getKey());
 					break;
 				}
-			}			
-		}		
-		
+			}
+		}
+
 		return hostList;
 	}
 
 	@Override
-	public void updateList(NodeRecord node, ArrayList<FileRegister> list) throws RemoteException {
-		LinkedList<String> l;
-		
-		System.out.println("Updating the list from "+node);
-		
-		if((l=_filesRegister.get(node)) == null){
-			l = new LinkedList<String>();
+	public void updateList(NodeRecord node, ArrayList<FileRegister> list)
+			throws RemoteException {
+		LinkedList<FileRegister> l;
+
+		System.out.println("Updating the list from " + node);
+
+		if ((l = _filesRegister.get(node)) == null) {
+			l = new LinkedList<FileRegister>();
 			_filesRegister.put(node, l);
-		}else{
-			l = new LinkedList<String>();
+		} else {
+			l = new LinkedList<FileRegister>();
 		}
-		
-		for(int i=0; i<list.size(); i++){
+
+		for (int i = 0; i < list.size(); i++) {
 			System.out.println(list.get(i));
-			l.add(list.get(i).getName());
-		}		
+			l.add(list.get(i));
+		}
 	}
 
 	@Override
 	public LinkedList<String> getFilesList() throws RemoteException {
-		// TODO Auto-generated method stub
+
+		LinkedList<String> filesList = new LinkedList<String>();
+
+		Iterator<Entry<NodeRecord, LinkedList<FileRegister>>> itH = _filesRegister
+				.entrySet().iterator();
+
+		while (itH.hasNext()) {
+			Entry<NodeRecord, LinkedList<FileRegister>> e = itH.next();
+
+			Iterator<FileRegister> itF = e.getValue().iterator();
+			while (itF.hasNext()) {
+				FileRegister f = itF.next();
+				if(!filesList.contains(f.getName())){
+					filesList.add(f.getName());
+				}
+			}
+		}
+
+				
+		return filesList;
+	}
+
+	@Override
+	public FileRegister getFileInfo(String filename) throws RemoteException {
+		
+		Iterator<Entry<NodeRecord, LinkedList<FileRegister>>> itH = _filesRegister
+				.entrySet().iterator();
+
+		while (itH.hasNext()) {
+			Entry<NodeRecord, LinkedList<FileRegister>> e = itH.next();
+
+			Iterator<FileRegister> itF = e.getValue().iterator();
+			while (itF.hasNext()) {
+				FileRegister f = itF.next();
+				if (f.equals(filename)) {
+					return f;
+				}
+			}
+		}
+
 		return null;
 	}
 }
