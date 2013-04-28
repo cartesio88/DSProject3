@@ -25,7 +25,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 	HostRecord _node;
 	HostRecord _server;
 
-	public NodeRMI(InetAddress ip, int port, InetAddress serverIp, int serverPort) throws RemoteException {
+	public NodeRMI(InetAddress ip, int port, String serverIp, int serverPort) throws RemoteException {
 		super();
 
 		_nodeIp = ip;
@@ -53,12 +53,14 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		_node = new HostRecord(ip.getHostAddress(), port);
 		
 		// Bind with the server
-		_server = new HostRecord(serverIp.getHostAddress(), serverPort);			
+		_server = new HostRecord(serverIp, serverPort);			
 			
 	}
 
 
 
+	/* mmmm use UDP to download and parallelize them? maybe tcp socket? */
+	
 	@Override
 	public byte[] download(String filename) throws RemoteException {
 		Iterator<FileRegister> itF = _filesList.iterator();

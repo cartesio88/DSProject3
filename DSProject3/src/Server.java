@@ -14,11 +14,19 @@ public class Server {
 	 */
 	public static void main(String[] args) {
 		System.out.println("Starting server.");
-		
-		initRMI();
-		
-		// Get my port, ... read from args, and check port and stuff
 
+		initRMI();
+
+		// Get my port, server ip and port... read from args, and check port and
+		// stuff
+		if (args.length != 1) {
+			System.out
+					.println("Usage: java -jar Server.jar [port]");
+			return;
+		}
+		
+		port = Integer.parseInt(args[0]);
+		
 		try {
 			ServerRMI serverRMI = new ServerRMI(ip, port);
 		} catch (RemoteException e) {
@@ -27,15 +35,14 @@ public class Server {
 
 	}
 
-	
-	private static void initRMI(){
+	private static void initRMI() {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 		System.setProperty("java.rmi.server.codebase", "file:./bin");
 		System.setProperty("java.security.policy", "file:./policyfile");
-		
+
 		ip = getInterfaceIP();
 	}
-	
+
 	private static InetAddress getInterfaceIP() {
 		InetAddress ip = null;
 		try {
@@ -57,5 +64,5 @@ public class Server {
 		}
 		return ip;
 	}
-	
+
 }

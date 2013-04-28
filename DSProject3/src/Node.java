@@ -10,7 +10,7 @@ public class Node {
 	public static InetAddress ip;
 	public static int port;
 	public static String name;
-	public static InetAddress serverIp;
+	public static String serverIp;
 	public static int serverPort;
 	
 	/**
@@ -21,15 +21,24 @@ public class Node {
 		
 		initRMI();
 		
-		// Get my port, name, server ip and port... read from args, and check port and stuff
-		port = 3030;
+		
+		// Get my port, server ip and port... read from args, and check port and stuff
+		if (args.length != 3) {
+			System.out
+					.println("Usage: java -jar Node.jar [node port] [server ip] [server port]");
+			return;
+		}
+		
+		port = Integer.parseInt(args[0]);
 		name = ip+":"+port;
+		
+		serverIp = args[1];
+		serverPort = Integer.parseInt(args[2]);
 		
 		
 		try {
 			NodeRMI nodeRMI = new NodeRMI(ip, port, serverIp, serverPort);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
