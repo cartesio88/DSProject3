@@ -23,7 +23,7 @@ public class FileRegister implements Serializable{
 	}
 	
 	public String getName(){
-		return _file.getName();
+		return _name;
 	}
 	
 	public byte[] getChecksum(){
@@ -32,6 +32,10 @@ public class FileRegister implements Serializable{
 	
 	public byte[]  getContent(){
 		return _content;
+	}
+	
+	public String toString(){
+		return getName() + _checksum;
 	}
 	
 	private void computeChecksum() {

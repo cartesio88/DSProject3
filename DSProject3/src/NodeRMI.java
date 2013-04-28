@@ -56,6 +56,7 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 		// Create the HostRecord object for this node
 		_node = new NodeRecord(ip.getHostAddress(), port);
 		
+				
 		// Bind with the server
 		Registry serverRegistry;
 		try {
