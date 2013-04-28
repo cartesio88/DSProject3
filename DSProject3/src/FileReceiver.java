@@ -17,7 +17,8 @@ public class FileReceiver extends Thread {
 
 	final int START_PORT = 2000;
 	final int END_PORT = 50000;
-
+	final float PROB_CORRUPTION = .5f;
+	
 	String name;
 	int length;
 	String checksum;
@@ -46,12 +47,19 @@ public class FileReceiver extends Thread {
 
 			socket.receive(pkg);
 
+			
+			// Adding noise
+			if(Math.random()<PROB_CORRUPTION){
+				buffer[0] = 0;
+			}
+			
 			String cks = computeChecksum(buffer);
 
 			// Check checksum
 			if (!checksum.equals(cks)) {
 				System.out.println("ERROR Checksums are different! for file "
 						+ name);
+				return;
 			}
 
 			// Write file

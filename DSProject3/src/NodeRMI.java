@@ -150,7 +150,9 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 			// Get list from server
 
 			LinkedList<NodeRecord> nodesList = _server.find(fileName);
-
+			NodeRecord chosenNode = null;
+			
+			
 			// Pick up best (latency) Algorithm
 			if (nodesList.size() == 0) {
 				System.out.println("File not found!");
@@ -158,15 +160,22 @@ public class NodeRMI extends UnicastRemoteObject implements NodeInterface {
 			}
 
 			int minLat = 999999;
-			NodeRecord chosenNode = null;
+			
 			for(int i=0; i<nodesList.size(); i++){
 				NodeRecord node = nodesList.get(i);
-				node.bind();
+				if(!node.bind()){
+					continue;
+				}
 				int lat = node.rmi.getLatency(_node) * node.rmi.getLoad();
 				if(lat < minLat){
 					minLat = lat;
 					chosenNode = node;
 				}
+			}
+			
+			if(chosenNode == null){
+				System.out.println("No node available to download the file");
+				return;
 			}
 			
 			System.out.println("Downloading file from "+chosenNode);

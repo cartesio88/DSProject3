@@ -37,7 +37,7 @@ public class NodeRecord implements Serializable{
 			rmi = (NodeInterface) registry.lookup(name);
 		} catch (RemoteException e) {
 			rmi = null;
-			e.printStackTrace();
+			//e.printStackTrace();
 			return false;
 		} catch (NotBoundException e) {
 			System.out.println("Server not available "+toString());
